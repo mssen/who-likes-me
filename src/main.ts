@@ -1,26 +1,36 @@
 type Result = {
   user: {
-    match_message: string;
+    their_vote: number;
     name: string;
+    age: number;
+    profile_fields: Array<{ id: string; display_value: string }>;
   };
 };
 
-function createListItem(name: string): HTMLLIElement {
+type User = {
+  name: string;
+  age: number;
+  height: string;
+};
+
+function createListItem({ name, age, height }: User): HTMLLIElement {
   const li = document.createElement("li");
-  li.textContent = name;
+  li.textContent = `${name}, ${age} ${height}`;
   return li;
 }
 
 function parseAndDisplay(raw: string): void {
   const json = JSON.parse(raw);
-  const users: string[] = json.body[0].client_encounters.results
-    .filter(
-      (result: Result) =>
-        result.user.match_message ===
-        "They like you too! Keep the buzz going and message them within 24 hours."
-    )
-    .map((result: Result) => result.user.name);
-  console.log(users);
+  const users: User[] = json.body[0].client_encounters.results
+    .filter((result: Result) => result.user.their_vote === 2)
+    .map((result: Result) => ({
+      name: result.user.name,
+      age: result.user.age,
+      height:
+        result.user.profile_fields.find(
+          (field) => field.id === "lifestyle_height"
+        )?.display_value ?? "Not found",
+    }));
 
   const list = document.createElement("ul");
   list.append(...users.map(createListItem));
