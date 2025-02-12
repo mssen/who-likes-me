@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Who likes me?</title>
+  </head>
+  <body>
+    <h1>Who likes me?</h1>
+    <form id="like-form">
+      <textarea name="json" id="json" rows="10" cols="40"></textarea>
+      <p id="error-display"></p>
+      <button type="submit">Parse</button>
+    </form>
+    <div id="like-display"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
