@@ -1,17 +1,55 @@
-type Result = {
-  user: {
-    their_vote: number;
-    name: string;
-    age: number;
-    profile_fields: Array<{ id: string; display_value: string }>;
-  };
-};
+import { z } from "zod";
+
+const schema = z.object({
+  body: z.array(
+    z.object({
+      client_encounters: z.object({
+        results: z.array(
+          z.object({
+            user: z.object({
+              their_vote: z.number(),
+              name: z.string(),
+              age: z.number(),
+              profile_fields: z.array(
+                z.object({
+                  id: z.string(),
+                  display_value: z.string(),
+                })
+              ),
+            }),
+          })
+        ),
+      }),
+    })
+  ),
+});
 
 type User = {
   name: string;
   age: number;
   height: string;
 };
+
+function parseJson(raw: string): User[] | undefined {
+  const json = JSON.parse(raw);
+  try {
+    const data = schema.parse(json);
+    const users = data.body[0].client_encounters.results
+      .filter((result) => result.user.their_vote === 2)
+      .map(({ user }) => ({
+        name: user.name,
+        age: user.age,
+        height:
+          user.profile_fields.find((field) => field.id === "lifestyle_height")
+            ?.display_value ?? "Not found",
+      }));
+    return users;
+  } catch (_error) {
+    displayError(
+      "Error: incorrect format for JSON. Try copying and pasting again."
+    );
+  }
+}
 
 function createListItem({ name, age, height }: User): HTMLLIElement {
   const li = document.createElement("li");
@@ -20,37 +58,33 @@ function createListItem({ name, age, height }: User): HTMLLIElement {
 }
 
 function parseAndDisplay(raw: string): void {
-  const json = JSON.parse(raw);
-  const users: User[] = json.body[0].client_encounters.results
-    .filter((result: Result) => result.user.their_vote === 2)
-    .map((result: Result) => ({
-      name: result.user.name,
-      age: result.user.age,
-      height:
-        result.user.profile_fields.find(
-          (field) => field.id === "lifestyle_height"
-        )?.display_value ?? "Not found",
-    }));
+  const users = parseJson(raw);
 
-  const list = document.createElement("ul");
-  list.append(...users.map(createListItem));
+  if (users) {
+    const list = document.createElement("ul");
+    list.append(...users.map(createListItem));
 
-  const display = document.getElementById("like-display");
+    const display = document.getElementById("like-display");
 
-  if (display) {
-    const oldList = display.firstChild;
-    if (oldList) {
-      display.replaceChild(list, oldList);
-    } else {
-      display.appendChild(list);
+    if (display) {
+      const oldList = display.firstChild;
+      if (oldList) {
+        display.replaceChild(list, oldList);
+      } else {
+        display.appendChild(list);
+      }
     }
   }
 }
 
 function displayError(message: string): void {
-  const error = document.getElementById("error-display");
-  if (error) {
-    error.textContent = message;
+  document.getElementById("error-display")!.textContent = message;
+
+  const jsonField = document.getElementById("json")!;
+  if (message) {
+    jsonField.setAttribute("aria-invalid", "true");
+  } else {
+    jsonField.removeAttribute("aria-invalid");
   }
 }
 
