@@ -31,8 +31,8 @@ type User = {
 };
 
 function parseJson(raw: string): User[] | undefined {
-  const json = JSON.parse(raw);
   try {
+    const json = JSON.parse(raw);
     const data = schema.parse(json);
     const users = data.body[0].client_encounters.results
       .filter((result) => result.user.their_vote === 2)
@@ -45,6 +45,7 @@ function parseJson(raw: string): User[] | undefined {
       }));
     return users;
   } catch (_error) {
+    console.log("error?");
     displayError(
       "Error: incorrect format for JSON. Try copying and pasting again."
     );
@@ -57,23 +58,29 @@ function createListItem({ name, age, height }: User): HTMLLIElement {
   return li;
 }
 
+function renderDisplay(element: HTMLElement) {
+  const display = document.getElementById("like-display");
+  if (display) {
+    const old = display.firstChild;
+    if (old) {
+      display.replaceChild(element, old);
+    } else {
+      display.appendChild(element);
+    }
+  }
+}
+
 function parseAndDisplay(raw: string): void {
   const users = parseJson(raw);
 
-  if (users) {
+  if (users?.length === 0) {
+    const message = document.createElement("p");
+    message.textContent = "No likes. 💔";
+    renderDisplay(message);
+  } else if (users) {
     const list = document.createElement("ul");
     list.append(...users.map(createListItem));
-
-    const display = document.getElementById("like-display");
-
-    if (display) {
-      const oldList = display.firstChild;
-      if (oldList) {
-        display.replaceChild(list, oldList);
-      } else {
-        display.appendChild(list);
-      }
-    }
+    renderDisplay(list);
   }
 }
 
