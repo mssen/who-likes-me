@@ -1,0 +1,20 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  color-scheme: light dark;
+
+  --surface-1: #202020;
+  --surface-2: #333533;
+  --text-color: rgb(255 255 255 / 0.87);
+  --accent-color: #ffd100;
+  --accent-text: var(--surface-1);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --text-color: #213547;
+    --surface-1: #ffd100;
+    --surface-2: #f9f9f9;
+    --accent-color: #202020;
+    --accent-text: rgba(255 255 255 / 0.95);
+  }
+}

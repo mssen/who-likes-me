@@ -45,7 +45,6 @@ function parseJson(raw: string): User[] | undefined {
       }));
     return users;
   } catch (_error) {
-    console.log("error?");
     displayError(
       "Error: incorrect format for JSON. Try copying and pasting again."
     );
@@ -54,7 +53,20 @@ function parseJson(raw: string): User[] | undefined {
 
 function createListItem({ name, age, height }: User): HTMLLIElement {
   const li = document.createElement("li");
-  li.textContent = `${name}, ${age} ${height}`;
+
+  const nameSpan = document.createElement("span");
+  nameSpan.setAttribute("class", "name");
+  nameSpan.textContent = name;
+  li.appendChild(nameSpan);
+
+  const ageSpan = document.createElement("span");
+  ageSpan.innerHTML = `<strong>Age:</strong> ${age}`;
+  li.appendChild(ageSpan);
+
+  const heightSpan = document.createElement("span");
+  heightSpan.innerHTML = `<strong>Height:</strong> ${height}`;
+  li.appendChild(heightSpan);
+
   return li;
 }
 
@@ -97,11 +109,10 @@ function displayError(message: string): void {
 
 const form = document.getElementById("like-form");
 form?.addEventListener("submit", (event) => {
+  event.preventDefault();
+
   displayError("");
-  if (event && event.target) {
-    event.preventDefault();
-    const data = new FormData(event.target as HTMLFormElement);
-    const json = data.get("json");
-    parseAndDisplay(json?.toString() ?? "{}");
-  }
+  const data = new FormData(event.target as HTMLFormElement);
+  const json = data.get("json");
+  parseAndDisplay(json?.toString() ?? "{}");
 });
