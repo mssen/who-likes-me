@@ -115,4 +115,6 @@ form?.addEventListener("submit", (event) => {
   const data = new FormData(event.target as HTMLFormElement);
   const json = data.get("json");
   parseAndDisplay(json?.toString() ?? "{}");
+
+  return false;
 });
